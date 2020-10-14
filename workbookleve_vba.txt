@@ -1,0 +1,82 @@
+Sub newFirstFunction()
+    
+    Dim ws As Worksheet
+    Dim x As Integer
+    Dim wb As Workbook
+    Dim tabValues As String
+    
+    
+        
+    Dim var As Variant
+    
+    x = 1
+
+    Sheets("Sheet2").Range("A2:A100").Clear
+    Sheets("Sheet2").Range("C2:C100").Clear
+    Sheets("Sheet2").Range("D2:D100").Clear
+    Sheets("Sheet2").Range("E2:E100").Clear
+    Sheets("Sheet2").Range("F2:E100").Clear
+    Sheets("Sheet2").Range("G2:G100").Clear
+
+    
+    ' Below: opens the Workbook price
+    Set wb = Workbooks.Open(Filename:="C:\Users\lucas.qian\Documents\Nexon\priceQuote\reformatted_priceBook.xlsx", ReadOnly:=False)
+
+    
+       
+    ' Below: Loop through the Worksheets object from wb to get all the sheetnames
+    For Each ws In wb.Worksheets
+        ' Sheets("Sheet2").Cells(x, 1) = ws.Name
+        ' x = x + 1
+        
+        If x < wb.Worksheets.Count Then
+            tabValues = tabValues & ws.Name & ","
+        Else
+            tabValues = tabValues & ws.Name
+        End If
+        x = x + 1
+        
+    Next ws
+    
+        
+    ' Activate the result workbook - sheet2 tab
+    Worksheets("Sheet2").Activate
+    
+    
+    
+    
+    ' Creates the value in the result workbook with tabValues got from the price master sheet
+    Sheets("Sheet2").Range("B2:B100").Clear
+    Sheets("Sheet2").Range("C2:C100").Clear
+    Range("B3:B5").Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, _
+    Formula1:=tabValues
+    
+    
+    
+    'var = Range("B3").Value
+    
+    ' for testing
+    'For Each ws In Worksheets
+    '     Sheets("Sheet2").Cells(x, 1) = ws.Name
+    '     x = x + 1
+    'Next ws
+    
+    
+    ' on click property and get the selected value
+    
+    
+    wb.Sheets("Sheet1").Range("A:A").Clear
+    'activates the wb object which is the reformatted sheet
+    wb.Sheets("Sheet1").Cells(1, 1).Value = 35
+    
+    
+    'Now - search for A column in tab
+    
+    
+    
+    
+End Sub
+
+
+
+

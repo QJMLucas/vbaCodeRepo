@@ -1,0 +1,360 @@
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    Dim Sh As Worksheet
+    Set Sh = ThisWorkbook.Sheets("Sheet2")
+    
+    
+    Dim priceBook As Worksheet
+    Set priceBookSh = Workbooks("reformatted_priceBook.xlsx")
+    
+    
+    
+    'Worksheets ("Sheet2")
+    If Target.Address = Range("B3").Address Then
+
+        MsgBox "Halo"
+
+
+        Dim i As Long
+        Dim recordCategory As String
+        Dim temVar As String
+        Dim newStringaa As String
+        Dim checkThisLocationVar As String
+        Dim deleteCellValueFlag As Boolean
+
+        deleteCellValueFlag = False
+
+        If Target.Value = "WAN-Vocus" Then
+
+            'Workbooks("reformatted_priceBook.xlsx").Worksheets("WAN-Vocus").Activate
+
+            priceBookSh.Worksheets("Sheet2").Cells(19, 1).Value = "tesing i"
+
+            For i = 1 To 1000
+
+                'If IsEmpty(Sheets("WAN-Vocus").Cells(i, 1).Value) Then
+                If IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value) Then
+
+            Else
+
+            'wb.Sheets("Sheet1").Cells(i, 1).Value = wb.Sheets("WAN-Vocus").Cells(i, 1).Value
+
+                tempVar = priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value
+
+                recordCategory = recordCategory & tempVar & ","
+
+
+            End If
+            Next i
+            recordCategory = Left(recordCategory, Len(recordCategory) - 1)
+
+           ' MsgBox recordCategory
+
+            checkThisLocationVar = "C2"
+
+            With Sh.Range("C3").Validation
+                .Delete
+                .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                xlBetween, Formula1:=recordCategory
+                .IgnoreBlank = True
+                .InCellDropdown = True
+                .InputTitle = ""
+                .ErrorTitle = ""
+                .InputMessage = ""
+                .ErrorMessage = ""
+                .ShowInput = True
+                .ShowError = True
+            End With
+
+        Else
+
+           ' MsgBox Range(Target.Address).Offset(, 1).Address
+
+           deleteCellValueFlag = True
+
+
+           Dim cColumnAddress As String
+           Dim dColumnAddress As String
+           Dim eColumnAddress As String
+           Dim fColumnAddress As String
+
+
+
+           cColumnAddress = Range(Target.Address).Offset(, 1).Address
+           dColumnAddress = Range(Target.Address).Offset(, 2).Address
+           eColumnAddress = Range(Target.Address).Offset(, 3).Address
+           fColumnAddress = Range(Target.Address).Offset(, 4).Address
+
+           Sh.Range(cColumnAddress).Clear
+           Sh.Range(dColumnAddress).Clear
+           Sh.Range(eColumnAddress).Clear
+           Sh.Range(fColumnAddress).Clear
+
+
+        End If
+
+
+    ElseIf Target.Address = Range("C3").Address Then
+
+
+         'MsgBox "halo"
+
+         Dim StoreVar As String
+         Dim getAddress As String
+         Dim serviceDropDownStr As String
+         getAddress = Range("C3").Offset(, 1).Address
+
+
+         'MsgBox getAddress
+
+         MsgBox Target.Value & " "
+
+
+         'search for sheetName selected ======================================
+
+         Dim c As Range
+
+
+         With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
+             Set c = .Find(Target.Value, LookIn:=xlValues)
+             If c Is Nothing Then
+                 MsgBox "NothingFound"
+             Else
+                 MsgBox c.Address
+
+
+             End If
+         End With
+
+
+
+         'search for sheetName selected end ==================================
+
+
+         Dim serviceAddressFromPriceBook As String
+
+         ' offset to right 1 -> and down 1 to get the services in pricebook for WAN-Vocus
+         serviceAddressFromPriceBook = Range(c.Address).Offset(1, 1).Address
+
+         ' Services in B column start - in the pricebook sheet
+         Z = Range(serviceAddressFromPriceBook).Row
+
+         Do Until IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(Z, 2).Value)
+
+             serviceDropDownStr = serviceDropDownStr & priceBookSh.Worksheets("WAN-Vocus").Cells(Z, 2).Value & ","
+
+             Z = Z + 1
+             Loop
+
+         serviceDropDownStr = Left(serviceDropDownStr, Len(serviceDropDownStr) - 1)
+
+         Dim ssssss As String
+
+         ssssss = "D3"
+         With Sh.Range(ssssss).Validation
+                 .Delete
+                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                 xlBetween, Formula1:=serviceDropDownStr
+                 .IgnoreBlank = True
+                 .InCellDropdown = True
+                 .InputTitle = ""
+                 .ErrorTitle = ""
+                 .InputMessage = ""
+                 .ErrorMessage = ""
+                 .ShowInput = True
+                 .ShowError = True
+             End With
+
+         ' Services in B column end -
+
+
+         With Sh.Range("F3").Validation
+                 .Delete
+                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                 xlBetween, Formula1:="New,Modification,Relocation"
+                 .IgnoreBlank = True
+                 .InCellDropdown = True
+                 .InputTitle = ""
+                 .ErrorTitle = ""
+                 .InputMessage = ""
+                 .ErrorMessage = ""
+                 .ShowInput = True
+                 .ShowError = True
+             End With
+
+
+
+         'MsgBox serviceDropDownStr
+
+         '--------Create Oneoffselection-------
+         Dim onceOffAddress As String
+         Dim onceOffStrDropDown As String
+
+
+         onceOffAddress = Range(c.Address).Offset(, 4).Address
+
+         x = Range(onceOffAddress).Column
+
+         Do Until IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(3, x).Value)
+
+             onceOffStrDropDown = onceOffStrDropDown & priceBookSh.Worksheets("WAN-Vocus").Cells(3, x).Value & ","
+
+             x = x + 1
+         Loop
+
+
+         onceOffStrDropDown = Left(onceOffStrDropDown, Len(onceOffStrDropDown) - 1)
+
+
+         With Sh.Range("E3").Validation
+                 .Delete
+                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                 xlBetween, Formula1:=onceOffStrDropDown
+                 .IgnoreBlank = True
+                 .InCellDropdown = True
+                 .InputTitle = ""
+                 .ErrorTitle = ""
+                 .InputMessage = ""
+                 .ErrorMessage = ""
+                 .ShowInput = True
+                 .ShowError = True
+         End With
+
+         Application.EnableEvents = True
+
+
+    ElseIf Target.Address = Range("E3").Address Then
+    
+        
+        oneRight_getNMR_column = Range(Target.Address).Offset(, 1).Row
+        oneRight_getNMR_row = Range(Target.Address).Offset(, 1).Column
+        
+                
+        If IsEmpty(Sh.Cells(oneRight_getNMR_column, oneRight_getNMR_row).Value) Then
+        
+        Else
+            Sh.Cells(oneRight_getNMR_column, oneRight_getNMR_row).Clear
+            
+            
+            With Sh.Range("F3").Validation
+                 .Delete
+                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                 xlBetween, Formula1:="New,Modification,Relocation"
+                 .IgnoreBlank = True
+                 .InCellDropdown = True
+                 .InputTitle = ""
+                 .ErrorTitle = ""
+                 .InputMessage = ""
+                 .ErrorMessage = ""
+                 .ShowInput = True
+                 .ShowError = True
+            End With
+            
+            MsgBox "gotit"
+            
+            
+            
+            
+            
+            
+            
+            
+
+        End If
+        
+
+    ElseIf Target.Address = Range("F3").Address Then
+        
+        If IsEmpty(Target.Value) Then
+        
+        Else
+        
+            Dim oneLeftFromNNMRColumn As Integer
+            Dim oneLeftFromNMRRow As Integer
+    
+            Dim assignPriceVarColumn As Integer
+            Dim assignPriceVarRow As Integer
+    
+            contractTermValue = Range(Target.Address).Offset(, -1).Value
+    
+            MsgBox contractTermValue
+    
+            If Target.Value = "New" Then
+    
+                With priceBookSh.Worksheets("WAN-Vocus").Rows(3)
+                Set searchOnceOffSelected = .Find(contractTermValue, LookIn:=xlValues)
+                If searchOnceOffSelected Is Nothing Then
+                    MsgBox "OneOff value target not found in pricebook"
+    
+                Else
+                    'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
+                    assignPriceVarColumn = searchOnceOffSelected.Column
+                    MsgBox assignPriceVarColumn & " New - zheshi column value"
+                End If
+                End With
+            Else
+    
+                With priceBookSh.Worksheets("WAN-Vocus").Rows(3)
+                Set searchOnceOffSelected = .Find(Target.Value, LookIn:=xlValues)
+                If searchOnceOffSelected Is Nothing Then
+                    MsgBox "OneOff value target not found in pricebook"
+    
+                Else
+                    'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
+                    assignPriceVarColumn = searchOnceOffSelected.Column
+                    MsgBox assignPriceVarColumn & " New - zheshi column value"
+    
+                End If
+                End With
+    
+            End If
+    
+    
+            selectedServiceValue = Range(Target.Address).Offset(, -2).Value
+    
+    
+            ' With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
+            With priceBookSh.Worksheets("WAN-Vocus").Range("B:B")
+                Set searchForSelectedCategoryAddress = .Find(selectedServiceValue, LookIn:=xlValues)
+                If searchForSelectedCategoryAddress Is Nothing Then
+                    'MsgBox "service Value is not found in pricebook"
+                Else
+                    'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
+                   ' MsgBox searchForSelectedCategoryAddress.Row
+    
+                    assignPriceVarRow = searchForSelectedCategoryAddress.Row
+                    MsgBox assignPriceVarRow & " zheshi row value"
+    
+                End If
+            End With
+    
+    
+    
+    '        Dim twoRightOfTheOneOffSelectionColumn As Integer
+    
+    '        Dim twoRightOfTheOneOffSelectionRow As Integer
+    '
+    '
+            oneRightOfTheNMR_Row = Range(Target.Address).Offset(, 1).Column
+            oneRightOfTheNMR_Column = Range(Target.Address).Offset(, 1).Row
+    
+    
+    '        sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = "1000 for testing"
+    '
+            MsgBox "aout  to end"
+            MsgBox priceBookSh.Worksheets("WAN-Vocus").Cells(assignPriceVarRow, assignPriceVarColumn).Value
+            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = priceBookSh.Worksheets("WAN-Vocus").Cells(assignPriceVarRow, assignPriceVarColumn).Value
+            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
+    
+            ' assign matched intersection value to cell
+            'sh.Cells(oneRightOfTheOneOffSelectionColumn, oneRightOfTheOneOffSelectionRow).Value = priceBookSh.Worksheets("WAN-Vocus").Cells(assignPriceVarRow, assignPriceVarColumn).Value
+            'sh.Cells(oneRightOfTheOneOffSelectionColumn, oneRightOfTheOneOffSelectionRow).Interior.ColorIndex = 37
+    
+        
+        End If
+    End If
+    Application.EnableEvents = True
+
+
+End Sub
+

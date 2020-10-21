@@ -4,8 +4,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     Set Sh = ThisWorkbook.Sheets("Sheet2")
     Dim priceBook As Worksheet
     Set priceBookSh = Workbooks("reformatted_priceBook.xlsx")
-    
     Dim storeColumnACategory As String
+
     
     ' Started from column 2 which is the SheetName
     If Target.Address = Sh.Cells(Target.Row, 2).Address Then
@@ -13,20 +13,19 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         Dim i As Long
         Dim recordCategory As String
         Dim deleteCellValueFlag As Boolean
+        
 
         deleteCellValueFlag = False
         
         
-        If Target.Value = "WAN-Vocus" Then
-            
+        
+        For i = 1 To 1000
 
-            For i = 1 To 1000
-
-                If IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value) Then
+            If IsEmpty(priceBookSh.Worksheets(Target.Value).Cells(i, 1).Value) Then
 
             Else
-            
-                tempVar = priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value
+
+                tempVar = priceBookSh.Worksheets(Target.Value).Cells(i, 1).Value
 
                 recordCategory = recordCategory & tempVar & ","
 
@@ -36,8 +35,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             recordCategory = Left(recordCategory, Len(recordCategory) - 1)
 
             categoryDropdownAddress = Range(Target.Address).Offset(, 1).Address
-            
-            
+
             ' generate dropdown with value stored in recordCategory
             With Sh.Range(categoryDropdownAddress).Validation
                 .Delete
@@ -53,19 +51,59 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 .ShowError = True
             End With
         
-        Else
+        
+'        If Target.Value = "WAN-Vocus" Then
+'
+'
+'            For i = 1 To 1000
+'
+'                If IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value) Then
+'
+'            Else
+'
+'                tempVar = priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value
+'
+'                recordCategory = recordCategory & tempVar & ","
+'
+'
+'            End If
+'            Next i
+'            recordCategory = Left(recordCategory, Len(recordCategory) - 1)
+'
+'            categoryDropdownAddress = Range(Target.Address).Offset(, 1).Address
+'
+'
+'            ' generate dropdown with value stored in recordCategory
+'            With Sh.Range(categoryDropdownAddress).Validation
+'                .Delete
+'                .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+'                xlBetween, Formula1:=recordCategory
+'                .IgnoreBlank = True
+'                .InCellDropdown = True
+'                .InputTitle = ""
+'                .ErrorTitle = ""
+'                .InputMessage = ""
+'                .ErrorMessage = ""
+'                .ShowInput = True
+'                .ShowError = True
+'            End With
+'
+'        Else
+'
+'
+'        End If
     
-        End If
     
-    
-'---------------------------------------sh.Cells(Target.Row, 3) equals C3---------------------------------------------------
+'---------------------------------------Column 3 which is Column C - The Category Column---------------------------------------------------
     ElseIf Target.Address = Sh.Cells(Target.Row, 3).Address Then
     
-         Dim serviceDropDownStr As String
-       
+         Dim speedDropDownStr As String
+         
+         selectedSheetName = Range(Target.Address).Offset(, -1).Value
+        
 
         '======================search for sheetName selected ======================================
-         With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
+         With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
              Set c = .Find(Target.Value, LookIn:=xlValues)
              If c Is Nothing Then
                  MsgBox "NothingFound"
@@ -76,32 +114,33 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
 
 
-         Dim serviceAddressFromPriceBook As String
+         Dim speedAddressFromPriceBook As String
 
-         ' offset to right 1 -> and down 1 to get the services in pricebook for WAN-Vocus
-         serviceAddressFromPriceBook = Range(c.Address).Offset(1, 1).Address
+         '======================offset to right 1 -> and down 1 to get the services in pricebook for WAN-Vocus======================
+         speedAddressFromPriceBook = Range(c.Address).Offset(1, 1).Address
 
-         ' Services in B column start - in the pricebook sheet
-         Z = Range(serviceAddressFromPriceBook).Row
+         '======================Speed in B column start - in the pricebook sheet======================
+         Z = Range(speedAddressFromPriceBook).Row
 
-         Do Until IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(Z, 2).Value)
+         Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value)
 
-             serviceDropDownStr = serviceDropDownStr & priceBookSh.Worksheets("WAN-Vocus").Cells(Z, 2).Value & ","
+             speedDropDownStr = speedDropDownStr & priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value & ","
 
              Z = Z + 1
              Loop
 
-        '----------remove ending , character---------------'
-         serviceDropDownStr = Left(serviceDropDownStr, Len(serviceDropDownStr) - 1)
-
-         Address_serviceColumn = Range(Target.Address).Offset(, 1).Address
+        '======================remove ending , character======================
+         speedDropDownStr = Left(speedDropDownStr, Len(speedDropDownStr) - 1)
+         
+        '======================The address to populate the speed column selection
+         Address_speedColumn = Range(Target.Address).Offset(, 1).Address
          
          
-        '---------"D3" - get D3 address-----------------'
-         With Sh.Range(Address_serviceColumn).Validation
+        '======================"D3 in Quote workbook" - get D3 address======================
+         With Sh.Range(Address_speedColumn).Validation
                  .Delete
                  .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                 xlBetween, Formula1:=serviceDropDownStr
+                 xlBetween, Formula1:=speedDropDownStr
                  .IgnoreBlank = True
                  .InCellDropdown = True
                  .InputTitle = ""
@@ -116,8 +155,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         'Start------------------------------------------------Create Oneoffselection----------------------------------------------
 
-        Dim onceOffStrDropDown As String
-
         Dim Address_onceOffChargeColumn As String
 
         '-----------c.address contains the position of the first figure in onceoff , i.e , 12 in the case of WAN-Vocus------------
@@ -125,31 +162,43 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         x = Range(Address_onceOffChargeColumn).Column
         
-        
-        
-        '----------Find until empty-------- (3,x) is the first value in onceoff
-        Do Until IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(3, x).Value)
+        '======================Find until empty - (3,x) is the first value in onceoff which is value 12 in pricesheet
+        '======================Example: 12,24,36,Modification,Relocation
+        '*************to do search here*****************
+      
+        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
 
-             onceOffStrDropDown = onceOffStrDropDown & priceBookSh.Worksheets("WAN-Vocus").Cells(3, x).Value & ","
-
+             pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
              x = x + 1
         Loop
+        
+        '======================
+        monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
+        
+        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value)
 
-        onceOffStrDropDown = Left(onceOffStrDropDown, Len(onceOffStrDropDown) - 1)
+            contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value & ","
+             
+        
+            monthlyFirstValueCol = monthlyFirstValueCol + 1
+        Loop
+        
+        contractTermDropDown = Left(contractTermDropDown, Len(contractTermDropDown) - 1)
+        
       
-        
-        'End------------------------------------------------Create Oneoffselection----------------------------------------------
+      
+        'End======================Create ContractTerm Dropdown selection (all figures - not about new/modification/relocation etc======================
 
         
 
-        'Start**********************************************get contract term column - F3**********************************************
+        '======================get contract term column - F3 to populate the contractTermDropDown created======================
         Address_contractTermColumn = Range(Target.Address).Offset(, 3).Address
         
-        '----------------------create dropdown list three to the right of the Target.Address---------------------
+        '======================create dropdown list three to the right of the Target.Address======================
         With Sh.Range(Address_contractTermColumn).Validation
                  .Delete
                  .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                 xlBetween, Formula1:=onceOffStrDropDown
+                 xlBetween, Formula1:=contractTermDropDown
                  .IgnoreBlank = True
                  .InCellDropdown = True
                  .InputTitle = ""
@@ -159,9 +208,15 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                  .ShowInput = True
                  .ShowError = True
         End With
-
-
-          '  c.Address.offset(,2) should get G3 New-Modification-relocation
+        
+        
+        'Below code used to be static New/Modification/Relocation , it needs to be dynamic
+        'The onceoff list condition is that anything that is not figure under the onceoff row in the pricebook
+        
+                
+        '********************Todo: get the onceoff options dynamically from above do until loop********************
+        
+        '  c.Address.offset(,2) should get G3 New-Modification-relocation
         Address_NMRColumn = Range(Target.Address).Offset(, 4).Address
         With Sh.Range(Address_NMRColumn).Validation
                  .Delete
@@ -183,15 +238,17 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 '---------------------------------------sh.Cells(Target.Row, 4) equals C4 column D---------------------------------------------------
     ElseIf Target.Address = Sh.Cells(Target.Row, 4).Address Then
     
-    
+
     ' search for category again, then offset (1,1)
       '  Target.Value
         
         Dim d As Range
-        
+    
         categoryValue = Target.Offset(, -1).Value
         
-        With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
+        selectedSheetName = Range(Target.Address).Offset(, -2).Value
+  
+        With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
         Set d = .Find(categoryValue, LookIn:=xlValues)
 '            If d Is Nothing Then
 '
@@ -209,10 +266,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         
             
         '
-        Do Until IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(firstItemInSpeed, 2).Value)
-            If priceBookSh.Worksheets("WAN-Vocus").Cells(firstItemInSpeed, 2).Value = Target.Value Then
+        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInSpeed, 2).Value)
+            If priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInSpeed, 2).Value = Target.Value Then
                 '-----Store the figure at the right of the selected speed to and store in getThisVar
-                getThisVar = priceBookSh.Worksheets("WAN-Vocus").Cells(firstItemInSpeed, 2 + 1)
+                getThisVar = priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInSpeed, 2 + 1)
                 firstItemInSpeed = firstItemInSpeed + 1
             Else:
                 firstItemInSpeed = firstItemInSpeed + 1
@@ -232,8 +289,34 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 '---------------------------------------sh.Cells(Target.Row, 6) Column F---------------------------------------------------
     ElseIf Target.Address = Sh.Cells(Target.Row, 6).Address Then
         
-            
+        clearNMRColumn = Target.Offset(, 1).Column
+        clearNMRRow = Target.Offset(, 1).Row
+        
+        
+        Sh.Cells(clearNMRRow, clearNMRColumn).ClearContents
+        
+        
+        clearDirectMarginColumn = Target.Offset(, 2).Column
+        clearDirectMarginRow = Target.Offset(, 2).Row
+        
+        Sh.Cells(clearDirectMarginRow, clearDirectMarginColumn).Clear
     
+        clearOnceOffColumn = Target.Offset(, 3).Column
+        clearOnceOffRow = Target.Offset(, 3).Row
+        
+        Sh.Cells(clearOnceOffRow, clearOnceOffColumn).Clear
+        
+        clearMonthlyOccuringColumn = Target.Offset(, 4).Column
+        clearMonthlyOccuringRow = Target.Offset(, 4).Row
+    
+        Sh.Cells(clearMonthlyOccuringRow, clearMonthlyOccuringColumn).Clear
+        
+        clearMonthlyOccuringColumn = Target.Offset(, 5).Column
+        clearMonthlyOccuringRow = Target.Offset(, 5).Row
+    
+        Sh.Cells(clearMonthlyOccuringRow, clearMonthlyOccuringColumn).Clear
+        
+        
 
 '---------------------------------------sh.Cells(Target.Row, 7) Column G---------------------------------------------------
     ElseIf Target.Address = Sh.Cells(Target.Row, 7).Address Then
@@ -249,7 +332,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             Dim assignPriceVarRow As Integer
     
             contractTermValue = Range(Target.Address).Offset(, -1).Value
-    
+            
+            
+            
             'MsgBox contractTermValue
     
     
@@ -284,9 +369,15 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 End With
     
             End If
-    
+            
+            
     
             selectedServiceValue = Range(Target.Address).Offset(, -3).Value
+    
+        
+            
+            '------------------populate onceoff charge value in column I
+    
     
     
             ' With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
@@ -302,33 +393,328 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 End If
             End With
     
-    '
-    '
+            
+            
+            'populate column H first
             oneRightOfTheNMR_Row = Range(Target.Address).Offset(, 1).Column
             oneRightOfTheNMR_Column = Range(Target.Address).Offset(, 1).Row
-    
-
-            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = priceBookSh.Worksheets("WAN-Vocus").Cells(assignPriceVarRow, assignPriceVarColumn).Value
+            
+            
+             ' lookup direct margin
+   
+            With priceBookSh.Worksheets("WAN-Vocus").Range("A1:CA2")
+                Set directMarginColumnValue = .Find("Direct Margin", LookIn:=xlValues)
+                If directMarginColumnValue Is Nothing Then
+                    MsgBox "nothing"
+                Else
+                    
+                    asadas = directMarginColumnValue.Column
+                    
+                    assignDirectMarginColumn = priceBookSh.Worksheets("WAN-Vocus").Cells(assignPriceVarRow, asadas).Value
+                    
+                End If
+            End With
+            
+            
+            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = assignDirectMarginColumn
             Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
+            
+            
+            '++++++++++++++++++++ populate onceoff margin+++++++++++++++++++++++++
+            
+            
+                            
+            selectedCategoryValue = Range(Target.Address).Offset(, -4).Value
+            selectedSheetNameValue = Range(Target.Address).Offset(, -5).Value
+            selectedTermValue = Range(Target.Address).Offset(, -1).Value
+            
+            ' find selected category heading in priceBook in column A
+            With priceBookSh.Worksheets(selectedSheetNameValue).Range("A:A")
+                 Set c = .Find(selectedCategoryValue, LookIn:=xlValues)
+                 If c Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                    storeColumnACategory = c.Address
+                 End If
+            End With
+            
+            firstValueOnceOffAddressColumn = Range(c.Address).Offset(0, 4).Column
+            firstValueOnceOffAddressRow = Range(c.Address).Offset(0, 4).Row
+            
+            
+            If Target.Value = "New" Then
     
+                searchOnceoffMarginValue = contractTermValue
+            Else
+                searchOnceoffMarginValue = Target.Value
+                
+            End If
+            
+            
+            'find the selected termValue in pricebook heading then search verticall till the end to find the margin
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetNameValue).Cells(firstValueOnceOffAddressRow, firstValueOnceOffAddressColumn).Value)
+                If priceBookSh.Worksheets(selectedSheetNameValue).Cells(firstValueOnceOffAddressRow, firstValueOnceOffAddressColumn).Value = searchOnceoffMarginValue Then
+                    onceOffMarginVerticallySearchRow = firstValueOnceOffAddressRow
+                    onceOffMarginVerticallySearchColumn = firstValueOnceOffAddressColumn
+                End If
+                firstValueOnceOffAddressColumn = firstValueOnceOffAddressColumn + 1
+                Loop
+            
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetNameValue).Cells(onceOffMarginVerticallySearchRow, onceOffMarginVerticallySearchColumn).Value)
+                
+                onceOffMargin = priceBookSh.Worksheets(selectedSheetNameValue).Cells(onceOffMarginVerticallySearchRow, onceOffMarginVerticallySearchColumn).Value
+                
+                
+                onceOffMarginVerticallySearchRow = onceOffMarginVerticallySearchRow + 1
+                Loop
+            
+            
+            ' onceoff margin
+            twoRightOfTheNMR_Column = Range(Target.Address).Offset(, 3).Column
+            twoRightOfTheNMR_Row = Range(Target.Address).Offset(, 3).Row
+            
+            Sh.Cells(twoRightOfTheNMR_Row, twoRightOfTheNMR_Column).Value = onceOffMargin
+            Sh.Cells(twoRightOfTheNMR_Row, twoRightOfTheNMR_Column).Interior.ColorIndex = 37
+            
+
         End If
 
 
 
-'---------------------------------------sh.Cells(Target.Row, 7) Column H---------------------------------------------------
+'---------------------------------------sh.Cells(Target.Row, 8) Column H---------------------------------------------------
     ElseIf Target.Address = Sh.Cells(Target.Row, 8).Address Then
-        'MsgBox "about to end"
-        'MsgBox Target.Offset(, -2).Value
-        'MsgBox Target.Offset(, -4).Value
+        
+        If IsEmpty(Target.Value) Then
+        
+        ElseIf Target.Value = 1 Then
+            
+            MsgBox "Margin value cannot equal to one"
+            Target.Value = 0
+        
+        Else
+        
+            'MsgBox Target.Offset(, -2).Value
+            'MsgBox Target.Offset(, -4).Value
+            
+            ' 1. get selected term
+            ' 2. get selected speed
+            ' 3. look up value
+            ' 4. get the moc by lookup value with the margin
+                
+            selectedSheetNameValue = Range(Target.Address).Offset(, -6).Value
+            selectedCategoryValue = Range(Target.Address).Offset(, -5).Value
+            selectedSpeedValue = Range(Target.Address).Offset(, -4).Value
+            selectedTermValue = Range(Target.Address).Offset(, -2).Value
+            
+            
+            ' find selected category heading in priceBook in column A
+            With priceBookSh.Worksheets(selectedSheetNameValue).Range("A:A")
+                 Set c = .Find(selectedCategoryValue, LookIn:=xlValues)
+                 If c Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                    storeColumnACategory = c.Address
+                 End If
+            End With
+            
+            firstValueOnceOffAddressColumn = Range(c.Address).Offset(0, 4).Column
+            firstValueOnceOffAddressRow = Range(c.Address).Offset(0, 4).Row
+            
+            
+            
+            
+            
+            ' match the selected term value and go to the last column to get the margin for the once off
 
-
+            
+            'find monthly heading'
+            
+            With priceBookSh.Worksheets(selectedSheetNameValue).Range("K1:P10")
+                 Set c = .Find("monthly", LookIn:=xlValues)
+                 If c Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                    'MsgBox "got it c"
+                    'MsgBox c.Address
+                 End If
+            End With
+            
+            firstValueMonthlyAddress = Range(c.Address).Offset(1, 0).Address
+            
+            
+            
+         
+            
+            'find selected speed row:
+            
+            
+            searchSelectedSpeedRow = Range(storeColumnACategory).Offset(1, 1).Row
+            searchSelectedSpeedColumn = Range(storeColumnACategory).Offset(1, 1).Column
+            
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetNameValue).Cells(searchSelectedSpeedRow, searchSelectedSpeedColumn).Value)
+                If priceBookSh.Worksheets(selectedSheetNameValue).Cells(searchSelectedSpeedRow, searchSelectedSpeedColumn).Value = selectedSpeedValue Then
+                    storeSelectedSpeedRow = priceBookSh.Worksheets(selectedSheetNameValue).Cells(searchSelectedSpeedRow, searchSelectedSpeedColumn).Row
     
+                End If
+                searchSelectedSpeedRow = searchSelectedSpeedRow + 1
+                Loop
+     
+            
+            'find selected speed in monthly heading'
+             ' Services in B column start - in the pricebook sheet
+            Z = Range(firstValueMonthlyAddress).Column
+    
+            
+                
+            ' found monthly column value under monthly heading
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetNameValue).Cells(Range(storeColumnACategory).Row, Z).Value)
+    
+                If selectedTermValue = priceBookSh.Worksheets(selectedSheetNameValue).Cells(Range(storeColumnACategory).Row, Z) Then
+                    storeMonthlySelectedColumn = priceBookSh.Worksheets(selectedSheetNameValue).Cells(Range(storeColumnACategory).Row, Z).Column
+           
+                    'intsec_monthlyTermAndSpeed =
+                
+                End If
+                Z = Z + 1
+                Loop
+            
+            'get monthly occuring charge
+            monthlyRecurringCharge = priceBookSh.Worksheets(selectedSheetNameValue).Cells(storeSelectedSpeedRow, storeMonthlySelectedColumn).Value
+              
+            ' apply margin to monthly occuring charge
+            monthlyRecurringChargeAfterMargin = monthlyRecurringCharge / (1 - Target.Value)
+            
+            Target.Offset(0, 1).Value = monthlyRecurringChargeAfterMargin
+            
+            'get MOC address vlaue
+            oneRightOfDirectMarginColumn = Target.Offset(, 1).Column
+            oneRightOfDirectMarginRow = Target.Offset(, 1).Row
+            
+            Sh.Cells(oneRightOfDirectMarginRow, oneRightOfDirectMarginColumn).Interior.ColorIndex = 37
+            Sh.Cells(oneRightOfDirectMarginRow, oneRightOfDirectMarginColumn).Interior.ColorIndex = 37
+            
+            End If
+'---------------------------------------sh.Cells(Target.Row, 9) Column J---------------------------------------------------
+    ElseIf Target.Address = Sh.Cells(Target.Row, 10).Address Then
+        If IsEmpty(Target.Value) Then
+        
+        
+        ElseIf Target.Value = 1 Then
+            
+            MsgBox "Margin value cannot equal to one"
+            Target.Value = 0
+        
+        Else
 
 
+
+            'use the contract
+
+            selectedContractTerm = Target.Offset(, -4).Value
+            selectedSpeedValue = Target.Offset(, -6).Value
+            selectedNMRValue = Target.Offset(, -3).Value
+
+            selectedSheetValue = Target.Offset(, -8).Value
+            selectedCategoryValue = Target.Offset(, -7).Value
+
+
+
+
+            ' search for category row
+            With priceBookSh.Worksheets(selectedSheetValue).Range("A:A")
+                    Set searchForSelectedCategoryAddress = .Find(selectedCategoryValue, LookIn:=xlValues)
+                    If searchForSelectedCategoryAddress Is Nothing Then
+                        'MsgBox "Speed Value is found"
+                        MsgBox " nothing"
+                    Else
+                        'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
+
+                        selectedCategoryAddress = searchForSelectedCategoryAddress.Address
+
+
+                    End If
+                End With
+
+            'got E3
+
+            firstOnceOffAddress = Range(selectedCategoryAddress).Offset(0, 4).Address
+
+
+            ' -------------------------------------------------find onceoff charge -----------------------------------
+
+
+            firstSpeedItemRow = Range(selectedCategoryAddress).Offset(1, 1).Row
+            firstSpeedItemColumn = Range(selectedCategoryAddress).Offset(1, 1).Column
+
+            aa = priceBookSh.Worksheets(selectedSheetValue).Cells(firstSpeedItemRow, firstSpeedItemColumn).Value
+
+            ' finds the row for selected speed column
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetValue).Cells(firstSpeedItemRow, firstSpeedItemColumn).Value)
+
+                If priceBookSh.Worksheets(selectedSheetValue).Cells(firstSpeedItemRow, firstSpeedItemColumn).Value = selectedSpeedValue Then
+                    getSelectedSpeedRow = firstSpeedItemRow
+                End If
+
+                firstSpeedItemRow = firstSpeedItemRow + 1
+                Loop
+
+            'use getSelectedSpeedRow as the row index to find the intersection with selected onceoff value 12,24,36,modification,relocation
+       
+
+            ' -------------------------------------------------find onceoff charge -----------------------------------
+
+            firstOnceOffColumn = Range(selectedCategoryAddress).Offset(0, 4).Column
+            firstOnceOffRow = Range(selectedCategoryAddress).Offset(0, 4).Row
+
+
+
+            If selectedNMRValue = "New" Then
+                searchThisValueInOnceOffHeading = selectedContractTerm
+            Else
+                searchThisValueInOnceOffHeading = selectedNMRValue
+            End If
+
+
+            rowSearchIndex = Range(firstOnceOffAddress).Row
+            columnSearchIndex = Range(firstOnceOffAddress).Column
+
+
+
+            ' first item in the onceoff selection which is the address of value 12
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetValue).Cells(rowSearchIndex, columnSearchIndex).Value)
+
+                If priceBookSh.Worksheets(selectedSheetValue).Cells(rowSearchIndex, columnSearchIndex).Value = searchThisValueInOnceOffHeading Then
+                    'MsgBox "found the J thing"
+                    SelectedTermAddressInPriceBookRow = rowSearchIndex
+                    SelectedTermAddressInPriceBookColumn = columnSearchIndex
+                    'SelectedOnceOffValue_column = SelectedTermAddressInPriceBookColumn
+                End If
+
+                columnSearchIndex = columnSearchIndex + 1
+                Loop
+
+
+
+            onceoffcharge = priceBookSh.Worksheets(selectedSheetValue).Cells(getSelectedSpeedRow, SelectedTermAddressInPriceBookColumn).Value
+
+            'populate onceoff charge value
+
+            onceoffcharge = onceoffcharge / (1 - Target.Value)
+
+
+
+            onceoffChargeColumn = Range(Target.Address).Offset(, 1).Column
+            onceoffChargeRow = Range(Target.Address).Offset(, 1).Row
+
+            Sh.Cells(onceoffChargeRow, onceoffChargeColumn).Value = onceoffcharge
+            Sh.Cells(onceoffChargeRow, onceoffChargeColumn).Interior.ColorIndex = 37
+
+
+
+        End If
+            
+    
     End If
-        
-    
-        
     
     
     

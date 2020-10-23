@@ -17,7 +17,16 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
         deleteCellValueFlag = False
         
+       
+       If IsEmpty(Range(Target.Address).Offset(, 1)) = False Then
+            
+            Sh.Range(Target.Address).Offset(, 1).ClearContents
+            
+            Sh.Range(Target.Address).Offset(, 2).ClearContents
+            
+        End If
         
+    
         
         For i = 1 To 1000
 
@@ -37,61 +46,21 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             categoryDropdownAddress = Range(Target.Address).Offset(, 1).Address
 
             ' generate dropdown with value stored in recordCategory
-            With Sh.Range(categoryDropdownAddress).Validation
-                .Delete
-                .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                xlBetween, Formula1:=recordCategory
-                .IgnoreBlank = True
-                .InCellDropdown = True
-                .InputTitle = ""
-                .ErrorTitle = ""
-                .InputMessage = ""
-                .ErrorMessage = ""
-                .ShowInput = True
-                .ShowError = True
-            End With
+        With Sh.Range(categoryDropdownAddress).Validation
+            .Delete
+            .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+            xlBetween, Formula1:=recordCategory
+            .IgnoreBlank = True
+            .InCellDropdown = True
+            .InputTitle = ""
+            .ErrorTitle = ""
+            .InputMessage = ""
+            .ErrorMessage = ""
+            .ShowInput = True
+            .ShowError = True
+        End With
         
         
-'        If Target.Value = "WAN-Vocus" Then
-'
-'
-'            For i = 1 To 1000
-'
-'                If IsEmpty(priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value) Then
-'
-'            Else
-'
-'                tempVar = priceBookSh.Worksheets("WAN-Vocus").Cells(i, 1).Value
-'
-'                recordCategory = recordCategory & tempVar & ","
-'
-'
-'            End If
-'            Next i
-'            recordCategory = Left(recordCategory, Len(recordCategory) - 1)
-'
-'            categoryDropdownAddress = Range(Target.Address).Offset(, 1).Address
-'
-'
-'            ' generate dropdown with value stored in recordCategory
-'            With Sh.Range(categoryDropdownAddress).Validation
-'                .Delete
-'                .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-'                xlBetween, Formula1:=recordCategory
-'                .IgnoreBlank = True
-'                .InCellDropdown = True
-'                .InputTitle = ""
-'                .ErrorTitle = ""
-'                .InputMessage = ""
-'                .ErrorMessage = ""
-'                .ShowInput = True
-'                .ShowError = True
-'            End With
-'
-'        Else
-'
-'
-'        End If
     
     
 '---------------------------------------Column 3 which is Column C - The Category Column---------------------------------------------------
@@ -100,207 +69,213 @@ Private Sub Worksheet_Change(ByVal Target As Range)
          Dim speedDropDownStr As String
          
          selectedSheetName = Range(Target.Address).Offset(, -1).Value
-        
-        
-        If IsEmpty(Range(Target.Address).Offset(, -1).Value) = False And IsEmpty(Range(Target.Address).Offset(, 1).Value) = False Then
-            Sh.Range(Target.Address).Offset(, 1).ClearContents
-            
-            Sh.Range(Target.Address).Offset(, 2).ClearContents
-            
-            
-            Sh.Range(Target.Address).Offset(, 3).ClearContents
-        
-        End If
-
-        '======================search for sheetName selected ======================================
-         With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
-             Set c = .Find(Target.Value, LookIn:=xlValues)
-             If c Is Nothing Then
-                 MsgBox "NothingFound"
-             Else
-                 storeColumnACategory = c.Address
-             End If
-         End With
-
-
-
-         Dim speedAddressFromPriceBook As String
-
-         '======================offset to right 1 -> and down 1 to get the services in pricebook for WAN-Vocus======================
-         speedAddressFromPriceBook = Range(c.Address).Offset(1, 1).Address
-
-         '======================Speed in B column start - in the pricebook sheet======================
-         Z = Range(speedAddressFromPriceBook).Row
-
-         Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value)
-
-             speedDropDownStr = speedDropDownStr & priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value & ","
-
-             Z = Z + 1
-             Loop
-
-        '======================remove ending , character======================
-         speedDropDownStr = Left(speedDropDownStr, Len(speedDropDownStr) - 1)
          
-        '======================The address to populate the speed column selection
-         Address_speedColumn = Range(Target.Address).Offset(, 1).Address
+         If IsEmpty(Range(Target.Address).Offset(, -1).Value) = False And IsEmpty(Range(Target.Address).Offset(, 1).Value) = False Then
+                Sh.Range(Target.Address).Offset(, 1).ClearContents
+                
+                Sh.Range(Target.Address).Offset(, 2).ClearContents
+                
+                
+                Sh.Range(Target.Address).Offset(, 3).ClearContents
+            
+            End If
          
+         If IsEmpty(Target.Value) = False Then
          
-        '======================"D3 in Quote workbook" - get D3 address======================
-         With Sh.Range(Address_speedColumn).Validation
-                 .Delete
-                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                 xlBetween, Formula1:=speedDropDownStr
-                 .IgnoreBlank = True
-                 .InCellDropdown = True
-                 .InputTitle = ""
-                 .ErrorTitle = ""
-                 .InputMessage = ""
-                 .ErrorMessage = ""
-                 .ShowInput = True
-                 .ShowError = True
+
+            '======================search for sheetName selected ======================================
+             With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+                 Set c = .Find(Target.Value, LookIn:=xlValues)
+                 If c Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                     storeColumnACategory = c.Address
+                 End If
              End With
-
-
-
-        'Start------------------------------------------------Create Oneoffselection----------------------------------------------
-
-        Dim Address_onceOffChargeColumn As String
-
-        '-----------c.address contains the position of the first figure in onceoff , i.e , 12 in the case of WAN-Vocus------------
-        Address_onceOffChargeColumn = Range(c.Address).Offset(, 4).Address
-
-        x = Range(Address_onceOffChargeColumn).Column
-        
-        '======================Find until empty - (3,x) is the first value in onceoff which is value 12 in pricesheet
-        '======================Example: 12,24,36,Modification,Relocation
-        '*************to do search here*****************
-      
-        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
-
-             pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
-             x = x + 1
-        Loop
-        
-        '======================
-        monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
-        
-        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value)
-
-            contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value & ","
-             
-        
-            monthlyFirstValueCol = monthlyFirstValueCol + 1
-        Loop
-        
-        contractTermDropDown = Left(contractTermDropDown, Len(contractTermDropDown) - 1)
-        
-      
-      
-        'End======================Create ContractTerm Dropdown selection (all figures - not about new/modification/relocation etc======================
-
-        
-
-        '======================get contract term column - F3 to populate the contractTermDropDown created======================
-        Address_contractTermColumn = Range(Target.Address).Offset(, 3).Address
-        
-        '======================create dropdown list three to the right of the Target.Address======================
-        With Sh.Range(Address_contractTermColumn).Validation
-                 .Delete
-                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                 xlBetween, Formula1:=contractTermDropDown
-                 .IgnoreBlank = True
-                 .InCellDropdown = True
-                 .InputTitle = ""
-                 .ErrorTitle = ""
-                 .InputMessage = ""
-                 .ErrorMessage = ""
-                 .ShowInput = True
-                 .ShowError = True
-        End With
-        
-        
-        'Below code used to be static New/Modification/Relocation , it needs to be dynamic
-        'The onceoff list condition is that anything that is not figure under the onceoff row in the pricebook
-        
-                
-        '********************Todo: get the onceoff options dynamically from above do until loop********************
     
-'
-'        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
-'
-'             pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
-'             x = x + 1
-'        Loop
-        
-        
-        'find category
-        
-        
-        'search category value
-        With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
-        Set d = .Find(Target.Value, LookIn:=xlValues)
-'            If d Is Nothing Then
-'
-'                MsgBox "NothingFound"
-'            Else
-'                MsgBox "d address found and showing next"
-'                MsgBox d.Address
-'            End If
-        End With
     
-        firstItemInonceOffRow = Sh.Range(d.Address).Offset(, 4).Row
-        
-        
-        firstItemInonceOffColumn = Sh.Range(d.Address).Offset(, 4).Column
-        
-        
-        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value)
-
-             If IsNumeric(priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value) = False Then
-                
-                
-                dropdownValue = priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value
-                
-                onceOffDropDownListValues = onceOffDropDownListValues & dropdownValue & ","
-                
+    
+             Dim speedAddressFromPriceBook As String
+    
+             '======================offset to right 1 -> and down 1 to get the services in pricebook for WAN-Vocus======================
+             speedAddressFromPriceBook = Range(c.Address).Offset(1, 1).Address
+    
+             '======================Speed in B column start - in the pricebook sheet======================
+             Z = Range(speedAddressFromPriceBook).Row
+    
+             Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value)
+    
+                 speedDropDownStr = speedDropDownStr & priceBookSh.Worksheets(selectedSheetName).Cells(Z, 2).Value & ","
+    
+                 Z = Z + 1
+                 Loop
+    
+            '======================remove ending , character======================
+             speedDropDownStr = Left(speedDropDownStr, Len(speedDropDownStr) - 1)
              
-             End If
+            '======================The address to populate the speed column selection
+             Address_speedColumn = Range(Target.Address).Offset(, 1).Address
              
              
-             firstItemInonceOffColumn = firstItemInonceOffColumn + 1
-        Loop
-        
-        If Len(onceOffDropDownListValues) > 1 Then
+            '======================"D3 in Quote workbook" - get D3 address======================
+             With Sh.Range(Address_speedColumn).Validation
+                     .Delete
+                     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                     xlBetween, Formula1:=speedDropDownStr
+                     .IgnoreBlank = True
+                     .InCellDropdown = True
+                     .InputTitle = ""
+                     .ErrorTitle = ""
+                     .InputMessage = ""
+                     .ErrorMessage = ""
+                     .ShowInput = True
+                     .ShowError = True
+                 End With
+    
+    
+    
+            'Start------------------------------------------------Create Oneoffselection----------------------------------------------
+    
+            Dim Address_onceOffChargeColumn As String
+    
+            '-----------c.address contains the position of the first figure in onceoff , i.e , 12 in the case of WAN-Vocus------------
+            Address_onceOffChargeColumn = Range(c.Address).Offset(, 4).Address
+    
+            x = Range(Address_onceOffChargeColumn).Column
             
+            '======================Find until empty - (3,x) is the first value in onceoff which is value 12 in pricesheet
+            '======================Example: 12,24,36,Modification,Relocation
+            '*************to do search here*****************
+          
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
+    
+                 pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
+                 x = x + 1
+            Loop
+            
+            '======================
+            monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
+            
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value)
+    
+                contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value & ","
+                 
+            
+                monthlyFirstValueCol = monthlyFirstValueCol + 1
+            Loop
+            
+            contractTermDropDown = Left(contractTermDropDown, Len(contractTermDropDown) - 1)
+            
+          
+          
+            'End======================Create ContractTerm Dropdown selection (all figures - not about new/modification/relocation etc======================
+    
+            
+    
+            '======================get contract term column - F3 to populate the contractTermDropDown created======================
+            Address_contractTermColumn = Range(Target.Address).Offset(, 3).Address
+            
+            '======================create dropdown list three to the right of the Target.Address======================
+            With Sh.Range(Address_contractTermColumn).Validation
+                     .Delete
+                     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                     xlBetween, Formula1:=contractTermDropDown
+                     .IgnoreBlank = True
+                     .InCellDropdown = True
+                     .InputTitle = ""
+                     .ErrorTitle = ""
+                     .InputMessage = ""
+                     .ErrorMessage = ""
+                     .ShowInput = True
+                     .ShowError = True
+            End With
+            
+            
+            'Below code used to be static New/Modification/Relocation , it needs to be dynamic
+            'The onceoff list condition is that anything that is not figure under the onceoff row in the pricebook
+            
+                    
+            '********************Todo: get the onceoff options dynamically from above do until loop********************
         
-            finalOnceOffList = "New" & "," & Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
+    '
+    '        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
+    '
+    '             pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
+    '             x = x + 1
+    '        Loop
+            
+            
+            'find category
+            
+            
+            'search category value
+            With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+            Set d = .Find(Target.Value, LookIn:=xlValues)
+    '            If d Is Nothing Then
+    '
+    '                MsgBox "NothingFound"
+    '            Else
+    '                MsgBox "d address found and showing next"
+    '                MsgBox d.Address
+    '            End If
+            End With
         
-        Else
-        
-            finalOnceOffList = "New"
+            firstItemInonceOffRow = Sh.Range(d.Address).Offset(, 4).Row
+            
+            
+            firstItemInonceOffColumn = Sh.Range(d.Address).Offset(, 4).Column
+            
+            
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value)
+    
+                 If IsNumeric(priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value) = False Then
+                    
+                    
+                    dropdownValue = priceBookSh.Worksheets(selectedSheetName).Cells(firstItemInonceOffRow, firstItemInonceOffColumn).Value
+                    
+                    onceOffDropDownListValues = onceOffDropDownListValues & dropdownValue & ","
+                    
+                 
+                 End If
+                 
+                 
+                 firstItemInonceOffColumn = firstItemInonceOffColumn + 1
+            Loop
+            
+            If Len(onceOffDropDownListValues) > 1 Then
+                
+            
+                finalOnceOffList = "New" & "," & Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
+            
+            Else
+            
+                finalOnceOffList = "New"
+            
+            End If
+            
+            
+            
+            'find category
+            
+            '  c.Address.offset(,2) should get G3 New-Modification-relocation
+            Address_NMRColumn = Range(Target.Address).Offset(, 4).Address
+            With Sh.Range(Address_NMRColumn).Validation
+                     .Delete
+                     .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
+                     xlBetween, Formula1:=finalOnceOffList
+                     .IgnoreBlank = True
+                     .InCellDropdown = True
+                     .InputTitle = ""
+                     .ErrorTitle = ""
+                     .InputMessage = ""
+                     .ErrorMessage = ""
+                     .ShowInput = True
+                     .ShowError = True
+            End With
         
         End If
         
         
-        
-        'find category
-        
-        '  c.Address.offset(,2) should get G3 New-Modification-relocation
-        Address_NMRColumn = Range(Target.Address).Offset(, 4).Address
-        With Sh.Range(Address_NMRColumn).Validation
-                 .Delete
-                 .Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Operator:= _
-                 xlBetween, Formula1:=finalOnceOffList
-                 .IgnoreBlank = True
-                 .InCellDropdown = True
-                 .InputTitle = ""
-                 .ErrorTitle = ""
-                 .InputMessage = ""
-                 .ErrorMessage = ""
-                 .ShowInput = True
-                 .ShowError = True
-        End With
         
         Application.EnableEvents = True
 

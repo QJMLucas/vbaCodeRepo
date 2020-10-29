@@ -453,26 +453,88 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             oneRightOfTheNMR_Column = Range(Target.Address).Offset(, 1).Row
             
             
-             ' lookup direct margin
-   
-            With priceBookSh.Worksheets(selectedSheetName).Range("A1:CA2")
-                Set directMarginColumnValue = .Find("Direct Margin", LookIn:=xlValues)
-                If directMarginColumnValue Is Nothing Then
-                    MsgBox "nothing"
-                Else
+             '------------------populate direct margin value in column H------------------
+            
+            ' need to handle special case for "WAN-SPN Bandwidth"
+            
+            If selectedSheetName <> "WAN-SPN Bandwidth" Then
+            
+            
+            
+                With priceBookSh.Worksheets(selectedSheetName).Range("A1:CA2")
+                    Set directMarginColumnValue = .Find("Direct Margin", LookIn:=xlValues)
+                    If directMarginColumnValue Is Nothing Then
+                        MsgBox "nothing"
+                    Else
+                        
+                        asadas = directMarginColumnValue.Column
+                        
+                        assignDirectMarginColumn = priceBookSh.Worksheets(selectedSheetName).Cells(assignPriceVarRow, asadas).Value
+                        
+                    End If
+                End With
+                
+                
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = assignDirectMarginColumn
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
+                
+            Else:
+                
+                With priceBookSh.Worksheets(selectedSheetName).Range("G1:P10")
+                 Set c_findMonthly = .Find("monthly", LookIn:=xlValues)
+                 If c_findMonthly Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                    'MsgBox c.Address
+                    monthlyColumn = c_findMonthly.Column
                     
-                    asadas = directMarginColumnValue.Column
-                    
-                    assignDirectMarginColumn = priceBookSh.Worksheets(selectedSheetName).Cells(assignPriceVarRow, asadas).Value
-                    
+                 End If
+                End With
+                
+                selectedCategoryValue = Target.Offset(, -4).Value
+                
+                With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+                 Set c_findCategory = .Find(selectedCategoryValue, LookIn:=xlValues)
+                 If c_findCategory Is Nothing Then
+                     MsgBox "NothingFound"
+                 Else
+                    categoryAddress = c_findCategory
+                    categoryRow = c_findCategory.Row
+
+                 End If
+                End With
+                
+                
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(categoryRow, monthlyColumn).Value)
+                If priceBookSh.Worksheets(selectedSheetName).Cells(categoryRow, monthlyColumn).Value = contractTermValue Then
+                    selectedMonthlyValueRow = categoryRow
+                    selectedMonthlyValueColumn = monthlyColumn
                 End If
-            End With
+                monthlyColumn = monthlyColumn + 1
+                Loop
+                
+                checkValue = priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow + 1, selectedMonthlyValueColumn).Value
+                MsgBox checkValue
+                
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow, selectedMonthlyValueColumn).Value)
+                
+                    finalMarginValue = priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow, selectedMonthlyValueColumn).Value
+                
+                selectedMonthlyValueRow = selectedMonthlyValueRow + 1
+                Loop
+                
+                
+                
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = finalMarginValue
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
+                
+                
             
+                
+            End If
             
-            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = assignDirectMarginColumn
-            Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
-            
-            
+                        
+                        
             '++++++++++++++++++++ populate onceoff margin+++++++++++++++++++++++++
             
             
@@ -758,7 +820,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             Else:
                 
-                onceoffcharge = 0
+                onceoffcharge = onceoffcharge
             End If
             
 
@@ -778,9 +840,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
 End Sub
 
-'Worksheet_SelectionChange creates a dropdown list in B2 column if the cell selected does not contian a list or is not the heading
-
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+
 
     Dim cell As Range, v As Long
     Dim Sh As Worksheet
@@ -845,6 +906,5 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 '            MsgBox "Has validation"
 '        End If
  '   Next
-
 
 End Sub

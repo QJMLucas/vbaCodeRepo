@@ -146,25 +146,80 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             '======================Find until empty - (3,x) is the first value in onceoff which is value 12 in pricesheet
             '======================Example: 12,24,36,Modification,Relocation
             '*************to do search here*****************
-          
-            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
+            
+            ' the static value 3 needs to be adjsted
+            ' if the selected sheet is WAN NWB - then it needs to change the 3 so needs a if loop for it
+            
+            
+            With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+                    Set d = .Find(Target.Value, LookIn:=xlValues)
+    '            If d Is Nothing Then
+    '
+    '                MsgBox "NothingFound"
+    '            Else
+    '                MsgBox "d address found and showing next"
+    '                MsgBox d.Address
+    '            End If
+            End With
+            
+            
+            If selectedSheetName <> "WAN-AAPT NWB & 4G" Then
+            
+                selectedCategoryRow = Sh.Range(d.Address).Row
+            
+                'search for
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(selectedCategoryRow, x).Value)
     
-                 pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
-                 x = x + 1
-            Loop
+                    pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(selectedCategoryRow, x).Column
+                    x = x + 1
+                Loop
             
-            '======================
-            monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
+                '======================
+                monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
+                
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(selectedCategoryRow, monthlyFirstValueCol).Value)
+        
+                    contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(selectedCategoryRow, monthlyFirstValueCol).Value & ","
+                     
+                
+                    monthlyFirstValueCol = monthlyFirstValueCol + 1
+                Loop
             
-            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value)
+            Else
+            
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
     
-                contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value & ","
-                 
+                    pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
+                    x = x + 1
+                Loop
             
-                monthlyFirstValueCol = monthlyFirstValueCol + 1
-            Loop
+                '======================
+                monthlyFirstValueCol = pricesheet_Column_lastElementInOnceOffRowColumn + 2  ' which is column K in Vocus case
+                
+                Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value)
+        
+                    contractTermDropDown = contractTermDropDown & priceBookSh.Worksheets(selectedSheetName).Cells(3, monthlyFirstValueCol).Value & ","
+                     
+                
+                    monthlyFirstValueCol = monthlyFirstValueCol + 1
+                Loop
+            
+            
+            End If
+            
+            
+            aaaaaaa = Sh.Range(d.Address).Row
+            MsgBox "aaaaa"
+            MsgBox aaaaaaa
+            
+            
+            
+            
             
             contractTermDropDown = Left(contractTermDropDown, Len(contractTermDropDown) - 1)
+            
+            
+            '==================ToDO-WAN-AAPT- NWB tab==================
             
           
           
@@ -373,6 +428,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
         
         
         selectedSheetName = Range(Target.Address).Offset(, -5).Value
+        selectedCategory = Range(Target.Address).Offset(, -4).Value
+        selectedServiceValue = Range(Target.Address).Offset(, -3).Value
         
         If IsEmpty(Target.Value) Then
     
@@ -425,27 +482,96 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             
     
-            selectedServiceValue = Range(Target.Address).Offset(, -3).Value
+            
     
         
             
             '------------------populate onceoff charge value in column I
     
-    
+            
+            ' wrong here the variable assignpriceVarRow needs to be adjusted'
     
             ' With priceBookSh.Worksheets("WAN-Vocus").Range("A:A")
-            With priceBookSh.Worksheets(selectedSheetName).Range("B:B")
-                Set searchForSelectedCategoryAddress = .Find(selectedServiceValue, LookIn:=xlValues)
+            ' =============original code==============
+'                    With priceBookSh.Worksheets(selectedSheetName).Range("B:B")
+'                        Set searchForSelectedCategoryAddress = .Find(selectedServiceValue, LookIn:=xlValues)
+'                        If searchForSelectedCategoryAddress Is Nothing Then
+'                            'MsgBox "service Value is not found in pricebook"
+'                        Else
+'                            'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
+'                           ' MsgBox searchForSelectedCategoryAddress.Row
+'
+'                            assignPriceVarRow = searchForSelectedCategoryAddress.Row
+'                        End If
+'                    End With
+            ' End=============original code==============
+            
+            
+            
+            
+            With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+                Set searchForSelectedCategoryAddress = .Find(selectedCategory, LookIn:=xlValues)
                 If searchForSelectedCategoryAddress Is Nothing Then
-                    'MsgBox "service Value is not found in pricebook"
+                    MsgBox "selectedCategory Value is not found in pricebook"
                 Else
                     'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
                    ' MsgBox searchForSelectedCategoryAddress.Row
-    
-                    assignPriceVarRow = searchForSelectedCategoryAddress.Row
+
+                    foundCategoryAddress = searchForSelectedCategoryAddress.Address
+                    
+                    
                 End If
             End With
-    
+            
+            MsgBox "xix"
+            
+            firstSpeedAddress = Range(foundCategoryAddress).Offset(1, 1).Address
+            
+            
+            firstSpeedColumn = Range(firstSpeedAddress).Column
+            firstSpeedRow = Range(firstSpeedAddress).Row
+            
+            
+            MsgBox "see below"
+            MsgBox firstSpeedColumn
+            
+            MsgBox firstSpeedRow
+            
+            checkSecond = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow + 1, firstSpeedColumn).Value
+            
+            '20MB found'
+            ' do until empty row +1
+            
+            MsgBox "checkSecond"
+            MsgBox checkSecond
+'
+'
+'            MsgBox "checkthird"
+'            checkthird = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedColumn + 1, firstSpeedRow).Value
+'            MsgBox checkthird
+'
+            ' 02112020 cong zheli kaishi
+            
+            checkFirst = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow, firstSpeedColumn).Value
+            
+            MsgBox "check first"
+            MsgBox checkFirst
+            
+            MsgBox "check second"
+            MsgBox checkSecond
+            
+            
+            Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow, firstSpeedColumn).Value)
+                If priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow, firstSpeedColumn).Value = selectedServiceValue Then
+                    assignPriceVarRow = firstSpeedRow
+                End If
+                firstSpeedRow = firstSpeedRow + 1
+            Loop
+            
+            MsgBox " result 02112020"
+            
+            'MsgBox rowValueForSpeedAndOnceOff
+            
             
             
             'populate column H first
@@ -457,70 +583,47 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             ' need to handle special case for "WAN-SPN Bandwidth"
             
-            If selectedSheetName <> "WAN-SPN Bandwidth" Then
-            
-            
-            
-                With priceBookSh.Worksheets(selectedSheetName).Range("A1:CA2")
-                    Set directMarginColumnValue = .Find("Direct Margin", LookIn:=xlValues)
-                    If directMarginColumnValue Is Nothing Then
-                        MsgBox "nothing"
-                    Else
-                        
-                        asadas = directMarginColumnValue.Column
-                        
-                        assignDirectMarginColumn = priceBookSh.Worksheets(selectedSheetName).Cells(assignPriceVarRow, asadas).Value
-                        
-                    End If
-                End With
-                
-                
-                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = assignDirectMarginColumn
-                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
-                
-            Else:
-                
+            If selectedSheetName = "WAN-SPN Bandwidth" Then
                 With priceBookSh.Worksheets(selectedSheetName).Range("G1:P10")
-                 Set c_findMonthly = .Find("monthly", LookIn:=xlValues)
-                 If c_findMonthly Is Nothing Then
-                     MsgBox "NothingFound"
-                 Else
-                    'MsgBox c.Address
+                    Set c_findMonthly = .Find("monthly", LookIn:=xlValues)
+                    If c_findMonthly Is Nothing Then
+                        MsgBox "NothingFound"
+                    Else
+                        'MsgBox c.Address
                     monthlyColumn = c_findMonthly.Column
                     
-                 End If
+                    End If
                 End With
                 
                 selectedCategoryValue = Target.Offset(, -4).Value
                 
                 With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
-                 Set c_findCategory = .Find(selectedCategoryValue, LookIn:=xlValues)
-                 If c_findCategory Is Nothing Then
-                     MsgBox "NothingFound"
-                 Else
-                    categoryAddress = c_findCategory
-                    categoryRow = c_findCategory.Row
+                    Set c_findCategory = .Find(selectedCategoryValue, LookIn:=xlValues)
+                        If c_findCategory Is Nothing Then
+                            MsgBox "NothingFound"
+                        Else
+                            categoryAddress = c_findCategory
+                            categoryRow = c_findCategory.Row
 
-                 End If
+                        End If
                 End With
                 
                 
                 Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(categoryRow, monthlyColumn).Value)
-                If priceBookSh.Worksheets(selectedSheetName).Cells(categoryRow, monthlyColumn).Value = contractTermValue Then
-                    selectedMonthlyValueRow = categoryRow
-                    selectedMonthlyValueColumn = monthlyColumn
-                End If
-                monthlyColumn = monthlyColumn + 1
+                    If priceBookSh.Worksheets(selectedSheetName).Cells(categoryRow, monthlyColumn).Value = contractTermValue Then
+                        selectedMonthlyValueRow = categoryRow
+                        selectedMonthlyValueColumn = monthlyColumn
+                    End If
+                    monthlyColumn = monthlyColumn + 1
                 Loop
                 
                 checkValue = priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow + 1, selectedMonthlyValueColumn).Value
-                MsgBox checkValue
                 
                 Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow, selectedMonthlyValueColumn).Value)
                 
                     finalMarginValue = priceBookSh.Worksheets(selectedSheetName).Cells(selectedMonthlyValueRow, selectedMonthlyValueColumn).Value
                 
-                selectedMonthlyValueRow = selectedMonthlyValueRow + 1
+                    selectedMonthlyValueRow = selectedMonthlyValueRow + 1
                 Loop
                 
                 
@@ -529,8 +632,42 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
                 
                 
+                
+            Else:
             
                 
+            
+                With priceBookSh.Worksheets(selectedSheetName).Range("A1:CA2")
+                    Set directMarginColumnValue = .Find("Direct Margin", LookIn:=xlValues)
+                    If directMarginColumnValue Is Nothing Then
+                        
+                        MsgBox "nothing"
+                        
+                    Else
+                        
+                        asadas = directMarginColumnValue.Column
+                        
+                        assignDirectMarginColumn = priceBookSh.Worksheets(selectedSheetName).Cells(assignPriceVarRow, asadas).Value
+                        
+                        MsgBox "kankan"
+                        MsgBox assignPriceVarRow
+                        MsgBox "kan Ling wai yige "
+                        MsgBox asadas
+                        MsgBox "kan value"
+                        MsgBox assignDirectMarginColumn
+                        
+                        ' 5  he 15
+                        
+                    End If
+                End With
+                
+ 
+                
+                
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Value = assignDirectMarginColumn
+                Sh.Cells(oneRightOfTheNMR_Column, oneRightOfTheNMR_Row).Interior.ColorIndex = 37
+            
+             
             End If
             
                         
@@ -692,6 +829,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 End If
                 Z = Z + 1
                 Loop
+                
+            MsgBox "output"
+            MsgBox storeMonthlySelectedColumn
             
             'get monthly occuring charge
             monthlyRecurringCharge = priceBookSh.Worksheets(selectedSheetNameValue).Cells(storeSelectedSpeedRow, storeMonthlySelectedColumn).Value
@@ -740,6 +880,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                     Set searchForSelectedCategoryAddress = .Find(selectedCategoryValue, LookIn:=xlValues)
                     If searchForSelectedCategoryAddress Is Nothing Then
                         'MsgBox "Speed Value is found"
+                        MsgBox "zhao dao le "
                         MsgBox " nothing"
                     Else
                         'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"

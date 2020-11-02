@@ -206,15 +206,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             
             End If
-            
-            
-            aaaaaaa = Sh.Range(d.Address).Row
-            MsgBox "aaaaa"
-            MsgBox aaaaaaa
-            
-            
-            
-            
+             
             
             contractTermDropDown = Left(contractTermDropDown, Len(contractTermDropDown) - 1)
             
@@ -299,9 +291,9 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             If Len(onceOffDropDownListValues) > 1 Then
                 
-            
+        
+                
                 finalOnceOffList = "New" & "," & Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
-            
             Else
             
                 finalOnceOffList = "New"
@@ -312,7 +304,8 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             'find category
             
-            '  c.Address.offset(,2) should get G3 New-Modification-relocation
+            ' c.Address.offset(,2) should get G3 New-Modification-relocation
+            ' populate column G
             Address_NMRColumn = Range(Target.Address).Offset(, 4).Address
             With Sh.Range(Address_NMRColumn).Validation
                      .Delete
@@ -444,27 +437,75 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             contractTermValue = Range(Target.Address).Offset(, -1).Value
             
             
+            With priceBookSh.Worksheets(selectedSheetName).Range("A:A")
+                Set searchForSelectedCategoryAddress = .Find(selectedCategory, LookIn:=xlValues)
+                If searchForSelectedCategoryAddress Is Nothing Then
+                    MsgBox "selectedCategory Value is not found in pricebook"
+                Else
+                    'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
+
+                    foundCategoryAddress = searchForSelectedCategoryAddress.Address
+                    
+                    
+                End If
+            End With
+            
+            firstSpeedAddress = Range(foundCategoryAddress).Offset(1, 1).Address
+            
+            
+            firstSpeedColumn = Range(firstSpeedAddress).Column
+            firstSpeedRow = Range(firstSpeedAddress).Row
+            
             
             'MsgBox contractTermValue
-    
+            
+            
+            'cuowu zai row zheli , zhao dao row jiu keyi le
+            MsgBox "firstSpeedRow is"
+            MsgBox firstSpeedRow
+            
     
             ' If its' new, lookup contractTerm value and look up the price in onceoff
             If Target.Value = "New" Then
+            
+                If selectedSheetName <> "WAN-AAPT NWB" Then
+                
     
-                With priceBookSh.Worksheets(selectedSheetName).Rows(3)
-                Set searchOnceOffSelected = .Find(contractTermValue, LookIn:=xlValues)
-                If searchOnceOffSelected Is Nothing Then
-                    
-                    MsgBox "OneOff value target not found in pricebook"
-    
+                    With priceBookSh.Worksheets(selectedSheetName).Rows(3)
+                    Set searchOnceOffSelected = .Find(contractTermValue, LookIn:=xlValues)
+                        If searchOnceOffSelected Is Nothing Then
+                            
+                            MsgBox "OneOff value target not found in pricebook"
+                            MsgBox "aaa"
+            
+                        Else
+                            'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
+                            assignPriceVarColumn = searchOnceOffSelected.Column
+                            'MsgBox assignPriceVarColumn & " New - zheshi column value"
+                        End If
+                    End With
+                
+                
                 Else
-                    'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
-                    assignPriceVarColumn = searchOnceOffSelected.Column
-                    'MsgBox assignPriceVarColumn & " New - zheshi column value"
+                    MsgBox "once off value is "
+                    MsgBox firstSpeedRow
+                    With priceBookSh.Worksheets(selectedSheetName).Rows(firstSpeedRow - 1)
+                        Set searchOnceOffSelected = .Find(contractTermValue, LookIn:=xlValues)
+                            If searchOnceOffSelected Is Nothing Then
+                                
+                                MsgBox "OneOff value target not found in pricebook"
+                                MsgBox "aaa"
+                
+                            Else
+                                'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
+                                assignPriceVarColumn = searchOnceOffSelected.Column
+                                'MsgBox assignPriceVarColumn & " New - zheshi column value"
+                            End If
+                        End With
                 End If
-                End With
             Else
-    
+                
+                'With priceBookSh.Worksheets(selectedSheetName).Rows(3)
                 With priceBookSh.Worksheets(selectedSheetName).Rows(3)
                 Set searchOnceOffSelected = .Find(Target.Value, LookIn:=xlValues)
                 If searchOnceOffSelected Is Nothing Then
@@ -473,7 +514,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 Else
                     'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
                     assignPriceVarColumn = searchOnceOffSelected.Column
-                    'MsgBox assignPriceVarColumn & " New - zheshi column value"
     
                 End If
                 End With
@@ -515,7 +555,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                     MsgBox "selectedCategory Value is not found in pricebook"
                 Else
                     'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
-                   ' MsgBox searchForSelectedCategoryAddress.Row
 
                     foundCategoryAddress = searchForSelectedCategoryAddress.Address
                     
@@ -523,42 +562,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 End If
             End With
             
-            MsgBox "xix"
-            
             firstSpeedAddress = Range(foundCategoryAddress).Offset(1, 1).Address
             
             
             firstSpeedColumn = Range(firstSpeedAddress).Column
             firstSpeedRow = Range(firstSpeedAddress).Row
-            
-            
-            MsgBox "see below"
-            MsgBox firstSpeedColumn
-            
-            MsgBox firstSpeedRow
-            
-            checkSecond = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow + 1, firstSpeedColumn).Value
-            
-            '20MB found'
-            ' do until empty row +1
-            
-            MsgBox "checkSecond"
-            MsgBox checkSecond
-'
-'
-'            MsgBox "checkthird"
-'            checkthird = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedColumn + 1, firstSpeedRow).Value
-'            MsgBox checkthird
-'
-            ' 02112020 cong zheli kaishi
-            
-            checkFirst = priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow, firstSpeedColumn).Value
-            
-            MsgBox "check first"
-            MsgBox checkFirst
-            
-            MsgBox "check second"
-            MsgBox checkSecond
             
             
             Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(firstSpeedRow, firstSpeedColumn).Value)
@@ -695,7 +703,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             
             If Target.Value = "New" Then
-    
+                
                 searchOnceoffMarginValue = contractTermValue
             Else
                 searchOnceoffMarginValue = Target.Value
@@ -835,9 +843,21 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             
             'get monthly occuring charge
             monthlyRecurringCharge = priceBookSh.Worksheets(selectedSheetNameValue).Cells(storeSelectedSpeedRow, storeMonthlySelectedColumn).Value
-              
-            ' apply margin to monthly occuring charge
-            monthlyRecurringChargeAfterMargin = monthlyRecurringCharge / (1 - Target.Value)
+            
+            If monthlyRecurringCharge = "N/A" Then
+                
+                monthlyRecurringChargeAfterMargin = "N/A"
+                
+            Else
+                MsgBox "monthly Recurring charge is"
+                MsgBox monthlyRecurringCharge
+                MsgBox "target value is "
+                MsgBox Target.Value
+                
+                ' apply margin to monthly occuring charge
+                monthlyRecurringChargeAfterMargin = monthlyRecurringCharge / (1 - Target.Value)
+            
+            End If
             
             Target.Offset(0, 1).Value = monthlyRecurringChargeAfterMargin
             
@@ -880,7 +900,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                     Set searchForSelectedCategoryAddress = .Find(selectedCategoryValue, LookIn:=xlValues)
                     If searchForSelectedCategoryAddress Is Nothing Then
                         'MsgBox "Speed Value is found"
-                        MsgBox "zhao dao le "
                         MsgBox " nothing"
                     Else
                         'MsgBox searchForSelectedCategoryAddress.Address & " is found in priceBook"
@@ -956,8 +975,17 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             'populate onceoff charge value
             
             If Target.Value <> 0 Then
-
-                onceoffcharge = onceoffcharge / (1 - Target.Value)
+                
+                If onceoffcharge <> "N/A" Then
+                
+                    
+                    
+                    onceoffcharge = onceoffcharge / (1 - Target.Value)
+            
+                Else
+                    onceoffcharge = "N/A"
+                End If
+                
             
             Else:
                 

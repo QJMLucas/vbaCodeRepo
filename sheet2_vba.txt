@@ -1,4 +1,6 @@
+
 Private Sub Worksheet_Change(ByVal Target As Range)
+
 
     Dim Sh As Worksheet
     Set Sh = ThisWorkbook.Sheets("Sheet2")
@@ -245,27 +247,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             End If
             
             
-            
-            
-            
-            
-            'Below code used to be static New/Modification/Relocation , it needs to be dynamic
-            'The onceoff list condition is that anything that is not figure under the onceoff row in the pricebook
-            
-                    
-            '********************Todo: get the onceoff options dynamically from above do until loop********************
-        
-    '
-    '        Do Until IsEmpty(priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Value)
-    '
-    '             pricesheet_Column_lastElementInOnceOffRowColumn = priceBookSh.Worksheets(selectedSheetName).Cells(3, x).Column
-    '             x = x + 1
-    '        Loop
-            
-            
-            'find category
-            
-            
             'search category value
             With priceBookSh.Worksheets(selectedSheetname).Range("A:A")
             Set d = .Find(Target.Value, LookIn:=xlValues)
@@ -300,11 +281,21 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                  firstItemInonceOffColumn = firstItemInonceOffColumn + 1
             Loop
             
+            
             If Len(onceOffDropDownListValues) > 1 Then
                 
-        
                 
-                finalOnceOffList = "New" & "," & Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
+                If selectedSheetname = "LAN-Managed S- Security Stack" Or selectedSheetname = "Co-Location Space" Then
+                    
+            
+                    finalOnceOffList = Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
+                
+                Else
+                
+                    finalOnceOffList = "New" & "," & Left(onceOffDropDownListValues, Len(onceOffDropDownListValues) - 1)
+                    
+                End If
+                
             Else
             
                 finalOnceOffList = "New"
@@ -499,7 +490,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                             Else
                                 'MsgBox searchOnceOffSelected.Address & " is found in Onceoff"
                                 assignPriceVarColumn = searchOnceOffSelected.Column
-                                MsgBox "zhao dao le o "
                                 
                                 'MsgBox assignPriceVarColumn & " New - zheshi column value"
                             End If
@@ -762,9 +752,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                     
                         
                         searchOnceoffMarginValue = contractTermValue
-                    
-
-                    
+                                        
                    End If
                     
                 Else
@@ -981,7 +969,11 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             If monthlyRecurringCharge = "N/A" Then
                 
                 monthlyRecurringChargeAfterMargin = "N/A"
+            
+            ElseIf monthlyRecurringCharge = "POA" Then
                 
+                monthlyRecurringChargeAfterMargin = "POA"
+            
             Else
                 
                 ' apply margin to monthly occuring charge
@@ -1001,11 +993,10 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                 
             End If
             
-            'get MOC address vlaue
+            'get MRC address vlaue
             oneRightOfDirectMarginColumn = Target.Offset(, 1).Column
             oneRightOfDirectMarginRow = Target.Offset(, 1).Row
             
-            Sh.Cells(oneRightOfDirectMarginRow, oneRightOfDirectMarginColumn).Interior.ColorIndex = 37
             Sh.Cells(oneRightOfDirectMarginRow, oneRightOfDirectMarginColumn).Interior.ColorIndex = 37
             
             End If
@@ -1087,9 +1078,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
 
             If selectedNMRValue = "New" Then
-            
-                MsgBox " its new"
-                
+             
                 
                 If selectedSheetValue = "WAN-AAPT 4G" Then
                     
@@ -1116,10 +1105,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
             Else
                 searchThisValueInOnceOffHeading = selectedNMRValue
             End If
-            
-            MsgBox "cint value is "
-            MsgBox searchThisValueInOnceOffHeading
-            
+           
 
 
             rowSearchIndex = Range(firstOnceOffAddress).Row
@@ -1179,10 +1165,12 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     
     End If
 
+
+
+
 End Sub
 
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
-
 
     Dim cell As Range, v As Long
     Dim Sh As Worksheet
@@ -1247,5 +1235,6 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 '            MsgBox "Has validation"
 '        End If
  '   Next
+
 
 End Sub

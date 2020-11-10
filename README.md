@@ -1,4 +1,4 @@
 # vbaCodeRepo
 
-This repository is for VBC code backup.
+This repository is for VBA code backup.
 

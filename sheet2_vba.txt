@@ -33,7 +33,6 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 
                 recordCategory = recordCategory & tempVar & ","
 
-
             End If
             Next i
             recordCategory = Left(recordCategory, Len(recordCategory) - 1)

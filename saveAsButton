@@ -1,0 +1,25 @@
+Sub Button2_Click()
+
+    MsgBox " halo"
+    
+    
+    Dim myValue As Variant
+    
+    myValue = InputBox("Type the filename below")
+    
+    
+    
+    
+    Worksheets(Array("Sheet2", "Sheet3")).Copy
+
+    With ActiveWorkbook
+     .SaveAs Filename:=CurDir() & "\" & myValue & ".xlsx", FileFormat:=xlOpenXMLWorkbook
+     .Close SaveChanges:=False
+    End With
+    
+    
+    
+    MsgBox "finished saving"
+    
+
+End Sub
